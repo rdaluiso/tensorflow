@@ -530,6 +530,7 @@ tf_gen_op_wrappers_cc(
         "math_ops",
     ],
     pkg = "//tensorflow/core",
+	tf_export = 1
 )
 
 tf_gen_op_wrappers_cc(
@@ -540,6 +541,7 @@ tf_gen_op_wrappers_cc(
         "array_ops",
     ],
     pkg = "//tensorflow/core",
+	tf_export = 1
 )
 
 tf_gen_op_wrappers_cc(
@@ -589,6 +591,7 @@ tf_gen_op_wrappers_cc(
         "//tensorflow/cc:ops",
         "//tensorflow/cc:scope",
     ],
+	tf_export = 1
 )
 
 tf_cc_test(

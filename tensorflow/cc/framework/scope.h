@@ -22,6 +22,7 @@ limitations under the License.
 #include <unordered_set>
 #include <vector>
 
+#include "tensorflow/core/platform/macros.h"
 #include "absl/strings/str_cat.h"
 #include "tensorflow/cc/framework/ops.h"
 #include "tensorflow/core/common_runtime/graph_constructor.h"
@@ -95,7 +96,7 @@ struct CompositeOpScopes;
 ///
 /// A `Scope` object is NOT thread-safe. Threads cannot concurrently call
 /// op-constructor functions on the same `Scope` object.
-class Scope {
+class TF_EXPORT Scope {
  public:
   Scope(const Scope& other);
   ~Scope();

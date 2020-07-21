@@ -28,7 +28,7 @@ namespace tensorflow {
 namespace {
 
 void PrintAllCCOps(const std::string& dot_h, const std::string& dot_cc,
-                   bool include_internal,
+                   bool include_internal, bool tf_export,
                    const std::vector<string>& api_def_dirs) {
   OpList ops;
   OpRegistry::Global()->Export(include_internal, &ops);
@@ -49,7 +49,7 @@ void PrintAllCCOps(const std::string& dot_h, const std::string& dot_cc,
 
   api_def_map.UpdateDocs();
 
-  WriteCCOps(ops, api_def_map, dot_h, dot_cc);
+  WriteCCOps(ops, api_def_map, dot_h, dot_cc, tf_export);
 }
 
 }  // namespace
@@ -57,12 +57,12 @@ void PrintAllCCOps(const std::string& dot_h, const std::string& dot_cc,
 
 int main(int argc, char* argv[]) {
   tensorflow::port::InitMain(argv[0], &argc, &argv);
-  if (argc != 5) {
+  if (argc != 6) {
     for (int i = 1; i < argc; ++i) {
       fprintf(stderr, "Arg %d = %s\n", i, argv[i]);
     }
     fprintf(stderr,
-            "Usage: %s out.h out.cc include_internal "
+            "Usage: %s out.h out.cc include_internal tf_export "
             "api_def_dirs1,api_def_dir2 ...\n"
             "  include_internal: 1 means include internal ops\n",
             argv[0]);
@@ -70,8 +70,9 @@ int main(int argc, char* argv[]) {
   }
 
   bool include_internal = tensorflow::StringPiece("1") == argv[3];
+  bool tf_export = tensorflow::StringPiece("1") == argv[4];
   std::vector<tensorflow::string> api_def_dirs = tensorflow::str_util::Split(
-      argv[4], ",", tensorflow::str_util::SkipEmpty());
-  tensorflow::PrintAllCCOps(argv[1], argv[2], include_internal, api_def_dirs);
+      argv[5], ",", tensorflow::str_util::SkipEmpty());
+  tensorflow::PrintAllCCOps(argv[1], argv[2], include_internal, tf_export, api_def_dirs);
   return 0;
 }

@@ -749,6 +749,7 @@ def tf_gen_op_wrapper_cc(
         op_gen = clean_dep("//tensorflow/cc:cc_op_gen_main"),
         deps = None,
         include_internal_ops = 0,
+		tf_export = 0,
         # ApiDefs will be loaded in the order specified in this list.
         api_def_srcs = []):
     # Construct an op generator binary for these ops.
@@ -791,7 +792,7 @@ def tf_gen_op_wrapper_cc(
         exec_tools = [":" + tool] + tf_binary_additional_srcs(),
         cmd = ("$(location :" + tool + ") $(location :" + out_ops_file + ".h) " +
                "$(location :" + out_ops_file + ".cc) " +
-               str(include_internal_ops) + " " + api_def_args_str),
+               str(include_internal_ops) + " " + str(tf_export) + " " + api_def_args_str),
     )
 
 # Given a list of "op_lib_names" (a list of files in the ops directory
@@ -837,6 +838,7 @@ def tf_gen_op_wrappers_cc(
         deps_internal = [],
         op_gen = clean_dep("//tensorflow/cc:cc_op_gen_main"),
         include_internal_ops = 0,
+		tf_export = 0,
         visibility = None,
         # ApiDefs will be loaded in the order specified in this list.
         api_def_srcs = [],
@@ -852,6 +854,7 @@ def tf_gen_op_wrappers_cc(
             "ops/" + n,
             api_def_srcs = api_def_srcs,
             include_internal_ops = include_internal_ops,
+			tf_export = tf_export,
             op_gen = op_gen,
             pkg = pkg,
             deps = [pkg + ":" + n + "_op_lib"] + extra_gen_deps,

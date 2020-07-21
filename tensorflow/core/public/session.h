@@ -19,6 +19,7 @@ limitations under the License.
 #include <string>
 #include <vector>
 
+#include "tensorflow/core/platform/macros.h"
 #include "tensorflow/core/framework/device_attributes.pb.h"
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/framework/tensor.h"
@@ -89,7 +90,7 @@ struct ThreadPoolOptions;
 /// after all other calls to Run() have returned.
 class Session {
  public:
-  Session();
+  TF_EXPORT Session();
   virtual ~Session();
 
   /// \brief Create the graph to be used for the session.
@@ -347,7 +348,7 @@ Status Reset(const SessionOptions& options,
 ///
 /// *Strongly prefer* the version of NewSession that returns Status,
 /// which contains more helpful error information.
-Session* NewSession(const SessionOptions& options);
+TF_EXPORT Session* NewSession(const SessionOptions& options);
 
 }  // end namespace tensorflow
 

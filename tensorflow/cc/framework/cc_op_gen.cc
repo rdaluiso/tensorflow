@@ -541,7 +541,7 @@ struct OpInfo {
   string GetOpAttrStruct() const;
   string GetConstructorDecl(StringPiece op_name_prefix,
                             bool include_attr) const;
-  void WriteClassDecl(WritableFile* h) const;
+  void WriteClassDecl(WritableFile* h, bool tf_export) const;
   void GetOutput(string* out) const;
   string GetConstructorBody() const;
   void WriteClassDef(WritableFile* cc) const;
@@ -806,9 +806,10 @@ string OpInfo::GetConstructorDecl(StringPiece op_name_prefix,
   return WordWrap(prefix, c_decl, kRightMargin);
 }
 
-void OpInfo::WriteClassDecl(WritableFile* h) const {
+void OpInfo::WriteClassDecl(WritableFile* h, bool tf_export) const {
   string class_decl = comment;
-  strings::StrAppend(&class_decl, "class ", op_name, " {\n");
+  std::string qualified_class = tf_export ? "class TF_EXPORT " : "class ";
+  strings::StrAppend(&class_decl, qualified_class, op_name, " {\n");
   strings::StrAppend(&class_decl, " public:\n");
   if (has_optional_attrs) {
     strings::StrAppend(&class_decl, GetOpAttrStruct());
@@ -1025,10 +1026,10 @@ void OpInfo::WriteClassDef(WritableFile* cc) const {
 
 void WriteCCOp(const OpDef& graph_op_def, const ApiDef& api_def,
                const std::vector<string>& aliases, WritableFile* h,
-               WritableFile* cc) {
+               WritableFile* cc, bool tf_export) {
   OpInfo op_info(graph_op_def, api_def, aliases);
 
-  op_info.WriteClassDecl(h);
+  op_info.WriteClassDecl(h, tf_export);
   op_info.WriteClassDef(cc);
 }
 
@@ -1037,6 +1038,7 @@ void StartFiles(bool internal, const string& dot_h_fname, WritableFile* h,
   const string header =
       R"header(// This file is MACHINE GENERATED! Do not edit.
 
+#include "tensorflow/core/platform/macros.h"
 #include "tensorflow/cc/framework/ops.h"
 #include "tensorflow/cc/framework/scope.h"
 #include "tensorflow/core/framework/tensor.h"
@@ -1122,7 +1124,7 @@ string MakeInternal(const string& fname) {
 }  // namespace
 
 void WriteCCOps(const OpList& ops, const ApiDefMap& api_def_map,
-                const string& dot_h_fname, const string& dot_cc_fname) {
+                const string& dot_h_fname, const string& dot_cc_fname, bool tf_export) {
   Env* env = Env::Default();
 
   // Write the initial boilerplate to the .h and .cc files.
@@ -1168,11 +1170,11 @@ void WriteCCOps(const OpList& ops, const ApiDefMap& api_def_map,
     if (api_def->visibility() == ApiDef::HIDDEN) {
       // Write hidden ops to _internal.h and _internal.cc.
       WriteCCOp(graph_op_def, *api_def, aliases, internal_h.get(),
-                internal_cc.get());
+                internal_cc.get(), false);
       continue;
     }
     // This isn't a hidden op, write it to the main files.
-    WriteCCOp(graph_op_def, *api_def, aliases, h.get(), cc.get());
+    WriteCCOp(graph_op_def, *api_def, aliases, h.get(), cc.get(), tf_export);
   }
 
   FinishFiles(false, h.get(), cc.get(), op_header_guard);
